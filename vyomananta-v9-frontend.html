@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1a1d2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VyomAnanta AI">
+<title>VyomAnanta AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --sidebar:#1a1625;--sidebar2:#231e30;--sidebar-hover:#2d2640;--sidebar-active:#3d3560;
+  --main:#ffffff;--surface:#f7f7f8;--border:#e5e5e5;
+  --text:#0d0d0d;--text2:#6b6b6b;--text3:#9b9b9b;
+  --accent:#7c3aed;--accent2:#6d28d9;--acb:#f3f0ff;
+  --user-bg:#f3f0ff;--ai-bg:#ffffff;
+  --green:#10a37f;--gold:#b5820a;
+  --fn:'Inter',system-ui,sans-serif;
+}
+body{font-family:var(--fn);background:var(--main);color:var(--text);height:100vh;height:100dvh;display:flex;overflow:hidden;}
+
+/* ── AUTH ── */
+.aw{position:fixed;inset:0;background:linear-gradient(135deg,#1a1625 0%,#2d1b69 50%,#1a1625 100%);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;overflow-y:auto;}
+.ac{background:#fff;border-radius:16px;padding:32px 28px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.5);margin:auto;}
+.al{width:52px;height:52px;border-radius:12px;overflow:hidden;margin:0 auto 14px;}
+.al img{width:100%;height:100%;object-fit:cover;}
+.ac h2{text-align:center;font-size:20px;font-weight:600;margin-bottom:4px;color:#0d0d0d;}
+.ac .sub{text-align:center;font-size:13px;color:#6b6b6b;margin-bottom:22px;line-height:1.5;}
+.fld{margin-bottom:12px;}
+.fld label{display:block;font-size:11px;font-weight:600;color:#6b6b6b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.fld input{width:100%;padding:10px 13px;border:1.5px solid #e5e5e5;border-radius:8px;font-family:var(--fn);font-size:14px;color:#0d0d0d;outline:none;transition:border .2s;}
+.fld input:focus{border-color:#7c3aed;}
+.abtn{width:100%;padding:11px;border:none;border-radius:8px;background:#7c3aed;color:#fff;font-family:var(--fn);font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;}
+.abtn:hover{background:#6d28d9;}
+.abtn:disabled{background:#c4b5fd;cursor:not-allowed;}
+.emsg{color:#dc2626;font-size:11px;text-align:center;margin-top:6px;display:none;background:#fef2f2;padding:6px 8px;border-radius:6px;}
+.omsg{color:#059669;font-size:11px;text-align:center;margin-top:6px;display:none;background:#ecfdf5;padding:6px 8px;border-radius:6px;}
+.sdots{display:flex;justify-content:center;gap:5px;margin-bottom:16px;}
+.sdot{width:6px;height:6px;border-radius:50%;background:#e5e5e5;transition:background .2s;}
+.sdot.on{background:#7c3aed;}
+.otprow{display:flex;gap:6px;justify-content:center;margin-bottom:10px;}
+.otprow input{width:40px;height:44px;text-align:center;font-size:18px;font-weight:600;border:1.5px solid #e5e5e5;border-radius:8px;outline:none;transition:border .2s;}
+.otprow input:focus{border-color:#7c3aed;}
+.tmr{text-align:center;font-size:11px;color:#6b6b6b;margin-bottom:10px;}
+.alink{text-align:center;font-size:12px;color:#6b6b6b;margin-top:10px;cursor:pointer;}
+.alink span{color:#7c3aed;text-decoration:underline;}
+.plcds{display:flex;flex-direction:column;gap:6px;margin:10px 0;}
+.plcd{border:1.5px solid #e5e5e5;border-radius:9px;padding:11px 13px;cursor:pointer;transition:all .15s;}
+.plcd:hover,.plcd.on{border-color:#7c3aed;background:#f3f0ff;}
+.plcd .ph{display:flex;justify-content:space-between;align-items:center;}
+.plcd .pn{font-size:13px;font-weight:600;}
+.plcd .pp{font-size:13px;font-weight:600;color:#7c3aed;}
+.plcd .pd{font-size:11px;color:#6b6b6b;margin-top:2px;}
+.wabtn{width:100%;padding:10px;border:none;border-radius:8px;background:#25d366;color:#fff;font-family:var(--fn);font-size:13px;font-weight:500;cursor:pointer;margin-top:6px;display:none;align-items:center;justify-content:center;gap:5px;}
+.flnk{text-align:center;font-size:12px;color:#7c3aed;text-decoration:underline;cursor:pointer;margin-top:8px;}
+.ahint{text-align:center;font-size:10px;color:#9b9b9b;margin-top:12px;padding-top:10px;border-top:1px solid #f0f0f0;}
+
+/* ── APP ── */
+#app{display:none;width:100%;height:100vh;height:100dvh;}
+#app.on{display:flex;}
+
+/* ── SIDEBAR (like Claude) ── */
+.sb{width:260px;background:var(--sidebar);display:flex;flex-direction:column;flex-shrink:0;color:#fff;transition:transform .25s;z-index:50;}
+@media(max-width:768px){
+  .sb{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);}
+  .sb.open{transform:translateX(0);}
+  .sbo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49;}
+  .sbo.on{display:block;}
+}
+.sb-top{padding:12px 10px 8px;}
+.new-chat-btn{width:100%;padding:9px 12px;border-radius:8px;border:none;background:var(--sidebar2);color:#e5e5e5;font-family:var(--fn);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .15s;margin-bottom:12px;}
+.new-chat-btn:hover{background:var(--sidebar-hover);}
+.new-chat-btn .icon{font-size:14px;}
+.sb-search{padding:8px 12px;border-radius:8px;border:none;background:var(--sidebar2);color:#c4c4c4;font-family:var(--fn);font-size:13px;width:100%;outline:none;display:flex;align-items:center;gap:6px;cursor:pointer;transition:background .15s;margin-bottom:8px;}
+.sb-search:hover{background:var(--sidebar-hover);}
+.sb-label{padding:6px 10px;font-size:11px;font-weight:600;color:#6b6b7b;text-transform:uppercase;letter-spacing:.5px;}
+.sb-body{flex:1;overflow-y:auto;padding:0 6px 20px;}
+.sb-body::-webkit-scrollbar{width:3px;}
+.sb-body::-webkit-scrollbar-thumb{background:#3d3560;border-radius:2px;}
+.hi{padding:8px 9px;border-radius:7px;cursor:pointer;margin-bottom:1px;display:flex;align-items:center;gap:7px;transition:background .12s;position:relative;}
+.hi:hover{background:var(--sidebar-hover);}
+.hi.on{background:var(--sidebar-active);}
+.ht{flex:1;min-width:0;}
+.hn{font-size:13px;font-weight:400;color:#e5e5e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hd{font-size:10px;color:#6b6b7b;margin-top:1px;}
+.hx{width:16px;height:16px;border-radius:3px;border:none;background:transparent;color:#6b6b7b;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;}
+.hi:hover .hx{display:flex;}
+.hx:hover{background:#4a1d96;color:#fff;}
+.nohist{padding:10px 10px;font-size:12px;color:#6b6b7b;text-align:center;}
+.sb-bottom{padding:10px;border-top:1px solid rgba(255,255,255,.08);}
+.sb-user{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:7px;cursor:pointer;transition:background .15s;}
+.sb-user:hover{background:var(--sidebar-hover);}
+.user-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#10a37f);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-name{font-size:13px;color:#e5e5e5;font-weight:500;}
+.user-plan{font-size:10px;color:#6b6b7b;}
+
+/* ── MAIN AREA ── */
+.mn{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--main);}
+
+/* Topbar */
+.tb{height:50px;padding:0 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.tl{display:flex;align-items:center;gap:8px;}
+.menu-btn{width:28px;height:28px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:16px;color:var(--text2);}
+@media(max-width:768px){.menu-btn{display:flex;}}
+.top-logo{width:20px;height:20px;border-radius:5px;overflow:hidden;}
+.top-logo img{width:100%;height:100%;object-fit:cover;}
+.top-title{font-size:14px;font-weight:600;color:var(--text);}
+
+/* Model selector (like Claude at bottom) */
+.model-area{display:flex;align-items:center;gap:6px;}
+.tr-btns{display:flex;align-items:center;gap:3px;}
+.ib{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text2);transition:all .15s;}
+.ib:hover{background:var(--surface);color:var(--text);}
+
+/* Messages */
+.mw{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.mw::-webkit-scrollbar{width:5px;}
+.mw::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px;}
+
+/* Welcome screen (like Claude) */
+.wlc{max-width:640px;margin:0 auto;padding:60px 20px 20px;text-align:center;}
+.wlc.gn{display:none;}
+.wlc-logo{width:48px;height:48px;border-radius:12px;overflow:hidden;margin:0 auto 16px;}
+.wlc-logo img{width:100%;height:100%;object-fit:cover;}
+.wlc h1{font-size:26px;font-weight:500;margin-bottom:8px;color:var(--text);}
+.wlc h1 span{color:var(--accent);}
+.wlc p{font-size:15px;color:var(--text2);line-height:1.6;margin-bottom:28px;}
+.prompt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;}
+@media(max-width:480px){.prompt-grid{grid-template-columns:1fr;}}
+.pgcard{padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--main);cursor:pointer;transition:all .15s;text-align:left;}
+.pgcard:hover{border-color:var(--accent);background:var(--acb);}
+.pgcard .ptitle{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;}
+.pgcard .psub{font-size:12px;color:var(--text2);}
+.pgcard:hover .ptitle,.pgcard:hover .psub{color:var(--accent);}
+
+/* Message thread (like Claude) */
+.thread{max-width:680px;margin:0 auto;padding:16px 20px 8px;}
+@media(max-width:768px){.thread{padding:12px 14px 6px;}}
+.mr{display:flex;gap:12px;padding:14px 0;animation:fu .2s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.mr-human{flex-direction:row-reverse;}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;overflow:hidden;}
+.av-ai{overflow:hidden;}
+.av-ai img{width:100%;height:100%;object-fit:cover;}
+.av-u{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;font-size:10px;}
+.mc{flex:1;min-width:0;}
+.sender{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.human-msg{display:flex;justify-content:flex-end;}
+.human-bubble{background:var(--acb);border:1px solid #ddd6fe;border-radius:18px 18px 4px 18px;padding:10px 16px;max-width:80%;font-size:14px;line-height:1.6;color:var(--text);}
+.ai-content{font-size:14px;line-height:1.72;color:var(--text);}
+.ai-content p{margin-bottom:10px;}
+.ai-content p:last-child{margin-bottom:0;}
+.ai-content strong{font-weight:600;}
+.ai-content h3{font-size:15px;font-weight:600;margin:14px 0 6px;color:var(--text);}
+.ai-content h4{font-size:14px;font-weight:600;margin:10px 0 5px;color:var(--text2);}
+.ai-content .li{display:flex;gap:8px;margin:3px 0;align-items:flex-start;}
+.ai-content .lb{color:var(--accent);font-weight:600;flex-shrink:0;font-size:12px;margin-top:2px;}
+.ai-content code{background:#f4f4f5;border:1px solid #e4e4e7;border-radius:4px;padding:1px 5px;font-size:12px;font-family:monospace;}
+.ai-content pre{background:#1a1625;border-radius:10px;padding:14px;margin:10px 0;overflow-x:auto;}
+.ai-content pre code{background:none;border:none;color:#e2e8f0;font-size:12px;padding:0;}
+.ai-content table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;display:block;overflow-x:auto;}
+.ai-content table th{background:#f3f0ff;color:#6d28d9;padding:8px 10px;text-align:left;font-size:12px;font-weight:600;border:1px solid #e5e5e5;}
+.ai-content table td{padding:7px 10px;border:1px solid #e5e5e5;vertical-align:top;}
+.ai-content table tr:nth-child(even) td{background:#fafafa;}
+.uim{max-width:220px;max-height:150px;border-radius:9px;border:1px solid var(--border);margin-top:6px;object-fit:contain;display:block;}
+.gim{max-width:320px;width:100%;border-radius:12px;border:1px solid var(--border);margin-top:8px;display:block;}
+.imgld{background:#f4f4f5;border-radius:12px;width:280px;height:280px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;font-size:12px;color:var(--text2);margin-top:8px;animation:pulse3 1.5s infinite;}
+@keyframes pulse3{0%,100%{opacity:1;}50%{opacity:.6;}}
+.msg-actions{display:flex;gap:4px;margin-top:8px;opacity:0;transition:opacity .15s;}
+.mr:hover .msg-actions{opacity:1;}
+.mac-btn{padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:transparent;font-size:11px;color:var(--text2);cursor:pointer;transition:all .12s;font-family:var(--fn);}
+.mac-btn:hover{background:var(--acb);color:var(--accent);border-color:var(--accent);}
+
+/* Typing dots */
+.tdots{display:flex;gap:4px;align-items:center;padding:6px 0;}
+.tdots span{width:7px;height:7px;border-radius:50%;background:#d1d5db;animation:tb 1.2s infinite;}
+.tdots span:nth-child(2){animation-delay:.2s;}
+.tdots span:nth-child(3){animation-delay:.4s;}
+@keyframes tb{0%,60%,100%{transform:translateY(0);background:#d1d5db;}30%{transform:translateY(-5px);background:var(--accent);}}
+
+/* ── INPUT AREA (like Claude's bottom bar) ── */
+.ia{flex-shrink:0;padding:12px 20px 16px;background:var(--main);}
+@media(max-width:480px){.ia{padding:10px 14px 14px;padding-bottom:calc(14px + env(safe-area-inset-bottom));}}
+.ia-inner{max-width:680px;margin:0 auto;}
+
+/* Model selector pills (like Claude's bottom) */
+.model-pills{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;}
+.mpill{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--main);font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .15s;display:flex;align-items:center;gap:4px;}
+.mpill:hover{border-color:var(--accent);color:var(--accent);}
+.mpill.on{background:var(--acb);border-color:var(--accent);color:var(--accent);}
+.mpill.art-pill.on{background:#fff7ed;border-color:#ea580c;color:#ea580c;}
+.mpill-sep{width:1px;height:16px;background:var(--border);margin:0 2px;align-self:center;}
+
+/* The input box itself */
+.input-box{background:var(--main);border:1.5px solid #d1d5db;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:border-color .2s,box-shadow .2s;}
+.input-box:focus-within{border-color:#7c3aed;box-shadow:0 2px 12px rgba(124,58,237,.12);}
+.img-prev-row{padding:8px 14px 0;display:flex;gap:6px;flex-wrap:wrap;}
+.ipv{position:relative;display:inline-block;}
+.ipv img{width:42px;height:42px;border-radius:7px;object-fit:cover;border:1px solid var(--border);}
+.ipv .irm{position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;background:#dc2626;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;border:none;}
+.input-row{display:flex;align-items:flex-end;padding:10px 10px 10px 16px;gap:6px;}
+#mi{flex:1;border:none;outline:none;background:transparent;font-family:var(--fn);font-size:15px;color:var(--text);resize:none;min-height:22px;max-height:120px;line-height:1.5;}
+@media(max-width:480px){#mi{font-size:16px;}}
+#mi::placeholder{color:#9ca3af;}
+.input-actions{display:flex;gap:4px;align-items:center;}
+.ia-btn{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;}
+.ia-btn:active{transform:scale(.9);}
+.img-btn{background:#f4f4f5;color:var(--text2);}
+.img-btn:hover{background:#e4e4e7;color:var(--text);}
+.mic-btn{background:#f4f4f5;color:var(--text2);}
+.mic-btn:hover{background:#d1fae5;color:#059669;}
+.mic-btn.rec{background:#fee2e2;color:#dc2626;animation:rp 1s infinite;}
+@keyframes rp{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.send-btn{background:#7c3aed;color:#fff;}
+.send-btn:hover{background:#6d28d9;}
+.send-btn:disabled{background:#d1d5db;cursor:not-allowed;}
+.input-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.footer-note{font-size:11px;color:#9b9b9b;}
+.wa-pill{padding:4px 10px;border-radius:18px;border:1px solid #22c55e;background:#f0fdf4;font-size:11px;font-weight:500;cursor:pointer;color:#16a34a;transition:all .15s;}
+.wa-pill:hover{background:#dcfce7;}
+#fi{display:none;}
+
+/* WA float */
+.waf{position:fixed;bottom:20px;right:18px;z-index:100;}
+@media(max-width:480px){.waf{bottom:calc(140px + env(safe-area-inset-bottom));}}
+.wa-fab{width:44px;height:44px;border-radius:50%;background:#25d366;color:#fff;font-size:19px;border:none;cursor:pointer;box-shadow:0 3px 14px rgba(37,211,102,.4);display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.wa-fab:active{transform:scale(.9);}
+
+/* Billing modal */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;display:none;align-items:flex-end;justify-content:center;}
+.mo.on{display:flex;}
+@media(min-width:600px){.mo{align-items:center;padding:14px;}}
+.moc{background:#fff;border-radius:16px 16px 0 0;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;}
+@media(min-width:600px){.moc{border-radius:16px;}}
+.moh{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;}
+.moh h2{font-size:16px;font-weight:600;}
+.mox{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.mob{padding:16px 20px 24px;}
+.bnote{background:#f3f0ff;border:1px solid #ddd6fe;border-radius:8px;padding:10px 13px;margin-bottom:14px;font-size:12px;color:#6d28d9;line-height:1.6;}
+.pl{display:flex;flex-direction:column;gap:10px;}
+.pc{border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;position:relative;overflow:hidden;}
+.pc.pop{border-color:#7c3aed;}
+.pc.pop::before{content:'POPULAR';position:absolute;top:9px;right:-16px;background:#7c3aed;color:#fff;font-size:8px;font-weight:700;padding:2px 22px;transform:rotate(35deg);}
+.ph2{display:flex;justify-content:space-between;margin-bottom:4px;}
+.pn{font-size:13px;font-weight:600;}
+.pp{font-size:16px;font-weight:700;color:#7c3aed;}
+.ps{font-size:11px;color:var(--text2);margin-bottom:6px;}
+.pfl{list-style:none;display:flex;flex-direction:column;gap:3px;}
+.pfl li{font-size:11px;color:var(--text2);display:flex;gap:5px;}
+.pfl li::before{content:'✓';color:#10a37f;font-weight:700;flex-shrink:0;}
+.pcost{margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);}
+.pcost strong{color:#10a37f;}
+.wcta{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:9px;border-radius:8px;background:#25d366;color:#fff;font-family:var(--fn);font-size:12px;font-weight:500;cursor:pointer;border:none;margin-top:7px;}
+
+/* Responsive */
+@media(max-width:768px){.top-title{font-size:13px;}}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div class="aw" id="aw">
+  <div class="ac" id="s1">
+    <div class="sdots"><div class="sdot on"></div><div class="sdot"></div><div class="sdot"></div></div>
+    <div class="al"><img id="authLogo" src="" alt="VA"></div>
+    <h2>VyomAnanta AI</h2>
+    <p class="sub">Sign in with your business email.<br>Personal emails (Gmail, Yahoo etc.) are not allowed.</p>
+    <div class="fld"><label>Business Email</label><input type="email" id="ei" placeholder="you@yourcompany.com" inputmode="email"></div>
+    <div class="fld" id="pf2" style="display:none"><label>Admin Password</label><input type="password" id="pi" placeholder="Admin password"></div>
+    <button class="abtn" id="eBtn" onclick="handleEmail()">Continue →</button>
+    <div class="emsg" id="e1"></div><div class="omsg" id="o1"></div>
+    <div class="ahint">Authorised business accounts only</div>
+  </div>
+  <div class="ac" id="s2" style="display:none">
+    <div class="sdots"><div class="sdot on"></div><div class="sdot on"></div><div class="sdot"></div></div>
+    <div class="al"><img id="authLogo2" src="" alt="VA"></div>
+    <h2>Verify your email</h2>
+    <p class="sub" id="osub">Enter the 6-digit code we sent you.</p>
+    <div class="otprow">
+      <input type="text" inputmode="numeric" maxlength="1" id="o1i" oninput="omi(this,'o2i')" onkeydown="obi(event,this,'')">
+      <input type="text" inputmode="numeric" maxlength="1" id="o2i" oninput="omi(this,'o3i')" onkeydown="obi(event,this,'o1i')">
+      <input type="text" inputmode="numeric" maxlength="1" id="o3i" oninput="omi(this,'o4i')" onkeydown="obi(event,this,'o2i')">
+      <input type="text" inputmode="numeric" maxlength="1" id="o4i" oninput="omi(this,'o5i')" onkeydown="obi(event,this,'o3i')">
+      <input type="text" inputmode="numeric" maxlength="1" id="o5i" oninput="omi(this,'o6i')" onkeydown="obi(event,this,'o4i')">
+      <input type="text" inputmode="numeric" maxlength="1" id="o6i" oninput="omi(this,'')" onkeydown="obi(event,this,'o5i')">
+    </div>
+    <div class="tmr">Expires in <strong id="tc">10:00</strong></div>
+    <button class="abtn" onclick="verOTP()">Verify →</button>
+    <div class="emsg" id="e2"></div><div class="omsg" id="o2"></div>
+    <div class="alink" onclick="goBack()">← Back</div>
+    <div class="alink" id="rl" style="display:none"><span onclick="resendOTP()">Resend code</span></div>
+  </div>
+  <div class="ac" id="s3" style="display:none">
+    <div class="sdots"><div class="sdot on"></div><div class="sdot on"></div><div class="sdot on"></div></div>
+    <div class="al"><img id="authLogo3" src="" alt="VA"></div>
+    <h2>Choose your plan</h2>
+    <p class="sub">Start free. Upgrade anytime on WhatsApp.</p>
+    <div class="plcds">
+      <div class="plcd" id="pF" onclick="selP('free')"><div class="ph"><span class="pn">Free Plan</span><span class="pp">₹0</span></div><div class="pd">VyomMind · Unlimited chats · All 36 services</div></div>
+      <div class="plcd" id="pP" onclick="selP('pro')"><div class="ph"><span class="pn">Pro Plan</span><span class="pp">₹999/mo</span></div><div class="pd">VyomMind + VyomBlaze + VyomArt image generation</div></div>
+      <div class="plcd" id="pE" onclick="selP('elite')"><div class="ph"><span class="pn">Elite Plan</span><span class="pp">₹2,499/mo</span></div><div class="pd">All models · Web search · Full access</div></div>
+    </div>
+    <button class="wabtn" id="planWA" onclick="proceedPlan()">💬 Subscribe on WhatsApp</button>
+    <div class="flnk" onclick="startFree()">Start with Free Plan →</div>
+    <div class="emsg" id="e3"></div>
+  </div>
+</div>
+
+<!-- APP (Claude-like layout) -->
+<div id="app">
+  <div class="sbo" id="sbo" onclick="closeSb()"></div>
+  <!-- SIDEBAR -->
+  <div class="sb" id="sb">
+    <div class="sb-top">
+      <button class="new-chat-btn" onclick="newChat()">
+        <span class="icon">✎</span> New conversation
+      </button>
+      <button class="sb-search" onclick="focusInput()">🔍 Search chats</button>
+      <div class="sb-label">Recent</div>
+    </div>
+    <div class="sb-body">
+      <div id="hl"></div>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="user-av" id="userAv">N</div>
+        <div>
+          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-plan" id="userPlan">Free Plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="mn">
+    <div class="tb">
+      <div class="tl">
+        <button class="menu-btn" onclick="toggleSb()">☰</button>
+        <div class="top-logo"><img id="topLogo" src="" alt="VA"></div>
+        <span class="top-title">VyomAnanta AI</span>
+      </div>
+      <div class="tr-btns">
+        <button class="ib" onclick="openMo('bilMo')" title="Plans">💳</button>
+        <button class="ib" onclick="expChat()" title="Export">⬇</button>
+        <button class="ib" onclick="doLogout()" title="Sign out" style="font-size:11px">⏏</button>
+      </div>
+    </div>
+
+    <div class="mw" id="mw">
+      <!-- Welcome screen -->
+      <div class="wlc" id="ws">
+        <div class="wlc-logo"><img id="wlcLogo" src="" alt="VA"></div>
+        <h1>What can I help with<span style="color:var(--accent)">?</span></h1>
+        <p>Ask me anything about your business. I'll think carefully, ask if I need context, and give you exactly what you need.</p>
+        <div class="prompt-grid">
+          <div class="pgcard" onclick="chip('I want to automate my business. Ask me a few questions first to understand my situation.')"><div class="ptitle">🚀 Automate my business</div><div class="psub">Get a personalised automation plan</div></div>
+          <div class="pgcard" onclick="chip('Find me 20 business owner leads in my city. Ask me about my industry and location first.')"><div class="ptitle">🎯 Generate leads for me</div><div class="psub">Agentic lead search + outreach messages</div></div>
+          <div class="pgcard" onclick="chip('Create a complete 30-day content calendar for my business on Instagram and WhatsApp. Ask me what type of business I run.')"><div class="ptitle">📱 Create content plan</div><div class="psub">30-day social media strategy</div></div>
+          <div class="pgcard" onclick="chip('Write a professional proposal to sell AI automation services to a manufacturing company. Ask me details about the client first.')"><div class="ptitle">📝 Write a proposal</div><div class="psub">Win more clients</div></div>
+          <div class="pgcard" onclick="setArtMode();chip('Create a professional marketing banner for VyomAnanta AI — modern, premium, deep space theme with golden glowing text')"><div class="ptitle">🎨 Generate an image</div><div class="psub">FLUX.1 HD image generation</div></div>
+          <div class="pgcard" onclick="chip('What are all 36 VyomAnanta services? Show me a complete table with pricing and who each service is best for.')"><div class="ptitle">💼 View all 36 services</div><div class="psub">Pricing, features, use cases</div></div>
+        </div>
+      </div>
+      <!-- Messages thread -->
+      <div class="thread" id="msgs"></div>
+    </div>
+
+    <!-- INPUT AREA (Claude-style bottom bar) -->
+    <div class="ia">
+      <div class="ia-inner">
+        <!-- Model pills like Claude -->
+        <div class="model-pills">
+          <button class="mpill on" id="mpMind" onclick="setMod('mind')">🧠 VyomMind</button>
+          <button class="mpill" id="mpBlaze" onclick="setMod('blaze')">⚡ VyomBlaze</button>
+          <div class="mpill-sep"></div>
+          <button class="mpill art-pill" id="mpArt" onclick="setArtMode()">🎨 VyomArt</button>
+          <div class="mpill-sep"></div>
+          <button class="mpill" id="mpSearch" onclick="chip('Search the web and tell me the latest AI automation trends in India in 2026 that VyomAnanta should offer clients.')">🔍 Web Search</button>
+        </div>
+        <!-- Image model selector (shown in art mode) -->
+        <div id="artModels" style="display:none;margin-bottom:8px;display:none;">
+          <select id="artModel" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-family:var(--fn);font-size:12px;color:var(--text2);background:var(--main);cursor:pointer;">
+            <option value="flash">VyomArt Flash — FLUX.1 Fast</option>
+            <option value="pro">VyomArt Pro — FLUX.1 Dev (HD)</option>
+            <option value="edit">VyomArt Edit — FLUX.1 Fill</option>
+            <option value="vision">VyomArt Vision — FLUX.1 Kontext</option>
+            <option value="canvas">VyomCanvas — Stable Diffusion XL</option>
+            <option value="ultra">VyomCanvas Ultra — SD 3.5 Large</option>
+            <option value="plus">VyomCanvas Plus — SD 3.5 Medium</option>
+          </select>
+        </div>
+        <div class="input-box">
+          <div class="img-prev-row" id="ipr"></div>
+          <div class="input-row">
+            <textarea id="mi" placeholder="Ask anything about your business..." rows="1"
+              onkeydown="hk(event)" oninput="rs(this)"></textarea>
+            <div class="input-actions">
+              <button class="ia-btn img-btn" onclick="document.getElementById('fi').click()" title="Attach image">📎</button>
+              <button class="ia-btn mic-btn" id="micB" onclick="togMic()" title="Voice">🎤</button>
+              <button class="ia-btn send-btn" id="sndB" onclick="sendMsg()" title="Send">▶</button>
+            </div>
+          </div>
+        </div>
+        <div class="input-footer">
+          <span class="footer-note" id="footNote">VyomMind · West Bengal, India</span>
+          <button class="wa-pill" onclick="openWA('general')">💬 WhatsApp</button>
+        </div>
+      </div>
+      <input type="file" id="fi" accept="image/*" multiple onchange="onPk(event)">
+    </div>
+  </div>
+</div>
+
+<!-- WA Float -->
+<div class="waf"><button class="wa-fab" onclick="openWA('general')" title="WhatsApp">💬</button></div>
+
+<!-- Billing Modal -->
+<div class="mo" id="bilMo" onclick="if(event.target===this)closeMo('bilMo')">
+  <div class="moc">
+    <div class="moh"><h2>Plans & Pricing</h2><button class="mox" onclick="closeMo('bilMo')">✕</button></div>
+    <div class="mob">
+      <div class="bnote">To subscribe, tap WhatsApp on your chosen plan. We activate within minutes after payment.</div>
+      <div class="pl">
+        <div class="pc"><div class="ph2"><div class="pn">Free Plan</div><div class="pp">₹0/month</div></div><div class="ps">VyomMind · Perfect for getting started.</div><ul class="pfl"><li>Unlimited conversations</li><li>All 36 services knowledge</li><li>Image upload & analysis</li><li>Voice input</li><li>Chat history saved</li></ul><div class="pcost">Cost to VyomAnanta: ₹0 · <strong>Forever free</strong></div></div>
+        <div class="pc pop"><div class="ph2"><div class="pn">Pro Plan</div><div class="pp">₹999/month</div></div><div class="ps">VyomMind + VyomBlaze + all 7 VyomArt image models.</div><ul class="pfl"><li>Everything in Free</li><li>VyomBlaze ultra-fast responses</li><li>7 image generation models</li><li>Web search AI</li><li>Priority speed</li></ul><div class="pcost">Infrastructure: ~₹5–30/mo · <strong>Profit: ₹969–994/mo</strong></div><button class="wcta" onclick="openWA('plan_pro')">💬 Subscribe — ₹999/month</button></div>
+        <div class="pc"><div class="ph2"><div class="pn">Elite Plan</div><div class="pp">₹2,499/month</div></div><div class="ps">All features + custom knowledge + monthly strategy call.</div><ul class="pfl"><li>Everything in Pro</li><li>Custom business knowledge training</li><li>White-label your own AI</li><li>Monthly 1-hour strategy call</li><li>Direct line to team</li></ul><div class="pcost">Infrastructure: ~₹50/mo · <strong>Profit: ~₹2,449/mo</strong></div><button class="wcta" onclick="openWA('plan_elite')">💬 Subscribe — ₹2,499/month</button></div>
+        <div class="pc" style="border-color:#b45309"><div class="ph2"><div class="pn" style="color:#b45309">Enterprise</div><div class="pp" style="color:#b45309">₹4,999/month</div></div><div class="ps">Full custom deployment, team access, SLA, dedicated support.</div><button class="wcta" style="background:#b45309" onclick="openWA('plan_enterprise')">💬 Contact for Enterprise</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── BACKEND URL (change this after deploying to Render.com) ──────────────
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000'
+  : 'https://vyomananta-ai-backend.onrender.com';  // ← UPDATE after Render deploy
+
+const WA = '918617520837';
+const AE = 'admin@vyomananta.com';
+const AP = 'Nilanjan@VA2025!';
+
+// Logo — loaded from relative path
+const LOGO_URL = 'logo.png';
+
+// ── STATE ────────────────────────────────────────────────────────────────
+let cid=null, mod='mind', artMod='flash', loading=false;
+let pendImgs=[], recog=null, isRec=false;
+let curPlan='free', curEmail='', curOTP='', ot=null, os=600, spv='free';
+let artMode=false;
+
+// ── DOM ──────────────────────────────────────────────────────────────────
+const $=id=>document.getElementById(id);
+const showE=(id,m)=>{const e=$(id);e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',5000);};
+const showO=(id,m)=>{const e=$(id);e.textContent=m;e.style.display='block';};
+const showS=id=>['s1','s2','s3'].forEach(s=>{$(s).style.display=s===id?'block':'none';});
+
+// Set logo everywhere
+const FREE_DOMAINS=['gmail.com','googlemail.com','yahoo.com','yahoo.in','hotmail.com','hotmail.in','outlook.com','outlook.in','live.com','live.in','rediffmail.com','icloud.com','protonmail.com','mail.com','aol.com','msn.com','yopmail.com','mailinator.com'];
+const isBiz=e=>{if(!e||!e.includes('@'))return false;return!FREE_DOMAINS.includes(e.split('@')[1].toLowerCase());};
+
+// ── AUTH ─────────────────────────────────────────────────────────────────
+function handleEmail(){
+  const em=$('ei').value.trim().toLowerCase();
+  if(!em){showE('e1','Please enter your email.');return;}
+  if(em===AE){$('pf2').style.display='block';$('eBtn').textContent='Sign in as Admin';$('eBtn').onclick=chkAdmin;$('pi').focus();return;}
+  if(!isBiz(em)){showE('e1','Personal email accounts are not permitted. Please use your business email address.');return;}
+  curEmail=em;
+  const sv=localStorage.getItem('va_u_'+btoa(em));
+  if(sv){try{const d=JSON.parse(sv);if(d.verified){launchApp(d);return;}}catch(e){}}
+  sendOTP(em);
+}
+function chkAdmin(){if($('pi').value===AP){launchApp({email:AE,plan:'admin',verified:true});}else{showE('e1','Incorrect admin password.');}}
+function genOTP(){return String(Math.floor(100000+Math.random()*900000));}
+function sendOTP(em){
+  curOTP=genOTP();const b=$('eBtn');b.textContent='Sending...';b.disabled=true;
+  setTimeout(()=>{
+    alert('OTP (TEST MODE)\n\n'+curOTP+'\n\nShare your EmailJS config with me to send real OTPs from noreply@vyomananta.com');
+    b.textContent='Continue';b.disabled=false;
+    $('osub').textContent='Enter the 6-digit code sent to '+em;
+    showS('s2');startTimer();$('o1i').focus();
+  },300);
+}
+function resendOTP(){curOTP=genOTP();alert('New OTP: '+curOTP);os=600;clearInterval(ot);startTimer();$('rl').style.display='none';showO('o2','New code generated.');}
+function startTimer(){os=600;clearInterval(ot);ot=setInterval(()=>{os--;const m=Math.floor(os/60),s=os%60;$('tc').textContent=m+':'+(s<10?'0':'')+s;if(os<=0){clearInterval(ot);$('tc').textContent='Expired';$('rl').style.display='block';}},1000);}
+function omi(el,nx){if(el.value&&nx)$(nx).focus();}
+function obi(e,el,pv){if(e.key==='Backspace'&&!el.value&&pv)$(pv).focus();}
+function getOTP(){return['o1i','o2i','o3i','o4i','o5i','o6i'].map(id=>$(id).value).join('');}
+function verOTP(){
+  const en=getOTP();if(en.length<6){showE('e2','Enter all 6 digits.');return;}
+  if(en!==curOTP){showE('e2','Incorrect code. Try again.');return;}
+  clearInterval(ot);
+  const sv=localStorage.getItem('va_u_'+btoa(curEmail));
+  if(sv){try{const d=JSON.parse(sv);d.verified=true;localStorage.setItem('va_u_'+btoa(curEmail),JSON.stringify(d));launchApp(d);return;}catch(e){}}
+  showS('s3');
+}
+function goBack(){clearInterval(ot);['o1i','o2i','o3i','o4i','o5i','o6i'].forEach(id=>{$(id).value='';});showS('s1');}
+function selP(p){spv=p;['F','P','E'].forEach(n=>{$('p'+n).classList.toggle('on',p===(n==='F'?'free':n==='P'?'pro':'elite'));});$('planWA').style.display=p==='free'?'none':'flex';}
+function proceedPlan(){const nm={pro:'Pro — ₹999/mo',elite:'Elite — ₹2,499/mo'};window.open('https://wa.me/'+WA+'?text='+encodeURIComponent('Hi VyomAnanta! I want to subscribe to the '+nm[spv]+' plan.\n\nEmail: '+curEmail+'\n\nPlease share payment details.'),'_blank');startFree();}
+function startFree(){const d={email:curEmail,plan:'free',verified:true,joinedAt:Date.now()};localStorage.setItem('va_u_'+btoa(curEmail),JSON.stringify(d));sessionStorage.setItem('va_s',JSON.stringify(d));launchApp(d);}
+function launchApp(d){
+  curPlan=d.plan||'free';curEmail=d.email||'';
+  sessionStorage.setItem('va_s',JSON.stringify(d));
+  $('aw').style.display='none';$('app').classList.add('on');
+  // Set user info in sidebar
+  const initials=curEmail?curEmail[0].toUpperCase():'N';
+  $('userAv').textContent=initials;
+  $('userName').textContent=curEmail.split('@')[0]||'User';
+  $('userPlan').textContent=curPlan.charAt(0).toUpperCase()+curPlan.slice(1)+' Plan';
+  initApp();
+  // Warmup HF in background
+  fetch(API+'/api/warmup',{method:'POST'}).catch(()=>{});
+}
+function doLogout(){sessionStorage.removeItem('va_s');location.reload();}
+
+// ── SIDEBAR ──────────────────────────────────────────────────────────────
+const toggleSb=()=>{$('sb').classList.toggle('open');$('sbo').classList.toggle('on');};
+const closeSb=()=>{$('sb').classList.remove('open');$('sbo').classList.remove('on');};
+
+// ── MODEL ─────────────────────────────────────────────────────────────────
+function setMod(m){
+  mod=m;artMode=false;
+  ['Mind','Blaze','Art'].forEach(n=>{const el=$('mp'+n);if(el)el.classList.remove('on');});
+  const btn=$('mp'+(m==='mind'?'Mind':'Blaze'));if(btn)btn.classList.add('on');
+  const notes={mind:'VyomMind · Intelligent & thoughtful',blaze:'VyomBlaze · Ultra-fast responses'};
+  $('footNote').textContent=notes[m]||'VyomMind';
+  $('artModels').style.display='none';
+  $('mi').placeholder='Ask anything about your business...';
+}
+
+function setArtMode(){
+  artMode=true;mod='art';
+  ['Mind','Blaze'].forEach(n=>{const el=$('mp'+n);if(el)el.classList.remove('on');});
+  $('mpArt').classList.add('on');
+  $('artModels').style.display='block';
+  $('footNote').textContent='VyomArt · FLUX.1 HD image generation';
+  $('mi').placeholder='Describe the image you want to generate...';
+}
+
+// ── STORAGE ──────────────────────────────────────────────────────────────
+const getC=()=>{try{return JSON.parse(localStorage.getItem('va_c')||'{}')}catch{return{}}};
+const svC=c=>localStorage.setItem('va_c',JSON.stringify(c));
+const getCM=id=>{const c=getC();return c[id]?c[id].messages:[];};
+function svCM(id,ms,ttl){const c=getC();if(!c[id])c[id]={id,title:ttl||'New chat',messages:[],createdAt:Date.now()};c[id].messages=ms;c[id].updatedAt=Date.now();if(ttl)c[id].title=ttl;svC(c);}
+function delC(id){const c=getC();delete c[id];svC(c);if(cid===id){cid=null;$('msgs').innerHTML='';showW();}rHist();}
+function rHist(){
+  const c=getC(),el=$('hl');
+  const s=Object.values(c).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  if(!s.length){el.innerHTML='<div class="nohist">No conversations yet.<br>Start chatting to see history here.</div>';return;}
+  el.innerHTML=s.map(ch=>{
+    const d=new Date(ch.updatedAt||ch.createdAt||Date.now());
+    const ts=d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    return '<div class="hi'+(ch.id===cid?' on':'')+'" onclick="ldChat(\''+ch.id+'\')">'
+      +'<div class="ht"><div class="hn">'+esc(ch.title||'Chat')+'</div><div class="hd">'+ts+'</div></div>'
+      +'<button class="hx" onclick="event.stopPropagation();delC(\''+ch.id+'\')" title="Delete">✕</button>'
+      +'</div>';
+  }).join('');
+}
+function ldChat(id){cid=id;const ms=getCM(id);$('msgs').innerHTML='';hideW();ms.forEach(m=>{if(m.role==='user')addUI('u',m.dt||'',m.imgs||[]);else if(m.role==='assistant')addUI('a',m.content||'');else if(m.role==='image')addImgUI(m.content||'',true);});rHist();closeSb();setTimeout(()=>{$('mw').scrollTop=99999;},80);}
+function initApp(){rHist();const c=getC();const ids=Object.keys(c).sort((a,b)=>(c[b].updatedAt||0)-(c[a].updatedAt||0));if(ids.length)ldChat(ids[0]);}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const ft=()=>new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+const hideW=()=>$('ws').classList.add('gn');
+const showW=()=>$('ws').classList.remove('gn');
+const scrBot=()=>setTimeout(()=>{$('mw').scrollTop=99999;},50);
+function newChat(){cid='c'+Date.now();$('msgs').innerHTML='';showW();rHist();closeSb();}
+function focusInput(){closeSb();$('mi').focus();}
+
+function addUI(role,text,imgs){
+  hideW();
+  const c=$('msgs');
+  const row=document.createElement('div');
+  row.className='mr'+(role==='u'?' mr-human':'');
+  const av=document.createElement('div');av.className='av '+(role==='u'?'av-u':'av-ai');
+  if(role==='u'){av.textContent='You';}
+  else{const im=document.createElement('img');im.src=LOGO_URL;im.onerror=()=>{av.textContent='VA';};av.appendChild(im);}
+  const mc=document.createElement('div');mc.className='mc';
+  if(role==='u'){
+    const hm=document.createElement('div');hm.className='human-msg';
+    const bub=document.createElement('div');bub.className='human-bubble';bub.textContent=text;
+    if(imgs&&imgs.length)imgs.forEach(src=>{const im=document.createElement('img');im.src=src;im.className='uim';bub.appendChild(im);});
+    hm.appendChild(bub);mc.appendChild(hm);
+  } else {
+    const sndr=document.createElement('div');sndr.className='sender';sndr.textContent='VyomAnanta AI';
+    const ct=document.createElement('div');ct.className='ai-content';ct.innerHTML=fmtAI(text);
+    const acts=document.createElement('div');acts.className='msg-actions';
+    const safe=text.substring(0,400).replace(/'/g,"\\'").replace(/\n/g,' ');
+    acts.innerHTML='<button class="mac-btn" onclick="cpTx(this,\''+safe+'\')">Copy</button>'
+      +'<button class="mac-btn" onclick="spkTx(\''+safe+'\')">Read aloud</button>'
+      +'<button class="mac-btn" onclick="openWA(\'reply\',\''+safe+'\')">Share on WhatsApp</button>';
+    ct.appendChild(acts);
+    mc.appendChild(sndr);mc.appendChild(ct);
+  }
+  row.appendChild(av);row.appendChild(mc);c.appendChild(row);scrBot();return mc;
+}
+
+function addImgUI(url,saved){
+  hideW();const c=$('msgs');
+  const row=document.createElement('div');row.className='mr';
+  const av=document.createElement('div');av.className='av av-ai';
+  const im2=document.createElement('img');im2.src=LOGO_URL;im2.onerror=()=>{av.textContent='VA';};av.appendChild(im2);
+  const mc=document.createElement('div');mc.className='mc';
+  const sndr=document.createElement('div');sndr.className='sender';sndr.textContent='VyomAnanta AI';
+  const ct=document.createElement('div');ct.className='ai-content';
+  if(saved){
+    const im=document.createElement('img');im.src=url;im.className='gim';im.alt='Generated';ct.appendChild(im);
+  } else {
+    const ld=document.createElement('div');ld.className='imgld';ld.innerHTML='<span style="font-size:22px">🎨</span><span>Generating with VyomArt...</span><span style="font-size:11px;color:#9ca3af">FLUX.1 · Usually 10–25 seconds</span>';ct.appendChild(ld);
+    const im=document.createElement('img');im.className='gim';im.alt='Generated';im.style.display='none';
+    im.onload=()=>{ld.remove();im.style.display='block';};
+    im.onerror=()=>{ld.innerHTML='<span style="color:#dc2626;font-size:13px">⚠ Image generation failed. The model may be warming up. Please try again in 30 seconds.</span>';};
+    im.src=url;ct.appendChild(im);
+  }
+  mc.appendChild(sndr);mc.appendChild(ct);row.appendChild(av);row.appendChild(mc);c.appendChild(row);scrBot();
+}
+
+function fmtAI(t){
+  t=t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  t=t.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>'<pre><code>'+esc(c.trim())+'</code></pre>');
+  t=t.replace(/`([^`]+)`/g,'<code>$1</code>');
+  t=t.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  t=t.replace(/^## (.+)$/gm,'<h4>$1</h4>');
+  t=t.replace(/^# (.+)$/gm,'<h3>$1</h3>');
+  t=t.replace(/\|(.+)\|\n\|[-|: ]+\|\n((?:\|.+\|\n?)+)/gm,(_,hdr,rows)=>{
+    const ths=hdr.split('|').filter(x=>x.trim()).map(x=>'<th>'+x.trim()+'</th>').join('');
+    const trs=rows.trim().split('\n').map(r=>'<tr>'+r.split('|').filter(x=>x.trim()).map(x=>'<td>'+x.trim()+'</td>').join('')+'</tr>').join('');
+    return '<table><thead><tr>'+ths+'</tr></thead><tbody>'+trs+'</tbody></table>';
+  });
+  t=t.replace(/^\d+\. (.+)$/gm,'<div class="li"><span class="lb">▸</span><span>$1</span></div>');
+  t=t.replace(/^[-*•] (.+)$/gm,'<div class="li"><span class="lb">•</span><span>$1</span></div>');
+  return t.split(/\n\n+/).map(p=>{p=p.trim();if(!p)return'';if(/^<(h3|h4|div|pre|table)/.test(p))return p;return'<p>'+p.replace(/\n/g,'<br>')+'</p>';}).join('');
+}
+
+function showTyp(){
+  hideW();const c=$('msgs');
+  const row=document.createElement('div');row.className='mr';row.id='tr';
+  const av=document.createElement('div');av.className='av av-ai';
+  const im=document.createElement('img');im.src=LOGO_URL;im.onerror=()=>{av.textContent='VA';};av.appendChild(im);
+  const mc=document.createElement('div');mc.className='mc';
+  const sndr=document.createElement('div');sndr.className='sender';sndr.textContent='VyomAnanta AI';
+  const dots=document.createElement('div');dots.className='tdots';dots.innerHTML='<span></span><span></span><span></span>';
+  mc.appendChild(sndr);mc.appendChild(dots);row.appendChild(av);row.appendChild(mc);c.appendChild(row);scrBot();
+}
+function rmTyp(){const t=$('tr');if(t)t.remove();}
+
+function cpTx(btn,t){navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',2000);});}
+
+// ── TTS ──────────────────────────────────────────────────────────────────
+function spkTx(t){
+  if(!window.speechSynthesis)return;window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t.replace(/[#*_`<>]/g,'').substring(0,500));
+  u.rate=1.0;u.lang='en-IN';
+  const vs=window.speechSynthesis.getVoices();
+  const v=vs.find(x=>x.lang.includes('en-IN'))||vs.find(x=>x.lang.startsWith('en'))||vs[0];
+  if(v)u.voice=v;window.speechSynthesis.speak(u);
+}
+window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+
+// ── MIC ───────────────────────────────────────────────────────────────────
+function togMic(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Voice input needs Google Chrome.');return;}
+  if(isRec){if(recog)recog.stop();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR();recog.lang='en-IN';recog.continuous=false;recog.interimResults=false;
+  recog.onstart=()=>{isRec=true;$('micB').classList.add('rec');$('micB').textContent='⏹';};
+  recog.onresult=e=>{$('mi').value=e.results[0][0].transcript;rs($('mi'));};
+  recog.onend=recog.onerror=()=>{isRec=false;$('micB').classList.remove('rec');$('micB').textContent='🎤';recog=null;};
+  recog.start();
+}
+
+// ── IMAGE UPLOAD ──────────────────────────────────────────────────────────
+function onPk(e){
+  Array.from(e.target.files).forEach(f=>{const r=new FileReader();r.onload=ev=>{pendImgs.push({name:f.name,data:ev.target.result});rPv();};r.readAsDataURL(f);});e.target.value='';
+}
+function rPv(){$('ipr').innerHTML=pendImgs.map((img,i)=>'<div class="ipv"><img src="'+img.data+'"><button class="irm" onclick="pendImgs.splice('+i+',1);rPv()">×</button></div>').join('');}
+
+// ── INPUT ─────────────────────────────────────────────────────────────────
+function rs(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function hk(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function chip(t){$('mi').value=t;rs($('mi'));sendMsg();}
+function expChat(){if(!cid)return;const ms=getCM(cid);if(!ms.length){alert('Chat is empty.');return;}const t=ms.map(m=>(m.role==='user'?'You':'VyomAnanta AI')+':\n'+(m.dt||m.content||'')).join('\n\n---\n\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='vyomananta-'+new Date().toISOString().split('T')[0]+'.txt';a.click();}
+
+// ── WHATSAPP ──────────────────────────────────────────────────────────────
+function openWA(ctx,extra){
+  let msg='';
+  const last=getCM(cid||'').filter(m=>m.role==='user').slice(-2).map(m=>m.dt||'').filter(Boolean).join('. ');
+  if(ctx==='general'){msg='Hi VyomAnanta! I am using your AI platform.\n\nQuery: '+(last||'I want to know more about your services.')+'\n\nEmail: '+curEmail+'\n\nPlease contact me.';}
+  else if(ctx==='reply'&&extra){msg='Hi VyomAnanta! The AI gave me this:\n\n'+extra+'\n\nEmail: '+curEmail+'\n\nWant to discuss.';}
+  else if(ctx&&ctx.startsWith('plan_')){const pm={plan_pro:'Pro — ₹999/mo',plan_elite:'Elite — ₹2,499/mo',plan_enterprise:'Enterprise — ₹4,999/mo'};msg='Hi VyomAnanta! I want to subscribe to the '+(pm[ctx]||ctx)+'.\n\nEmail: '+curEmail+'\n\nPlease share payment details.';}
+  else{msg='Hi VyomAnanta! I want to know more about your AI services.\n\nEmail: '+curEmail;}
+  window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────
+const openMo=id=>{$(id).classList.add('on');};
+const closeMo=id=>{$(id).classList.remove('on');};
+
+// ── SEND ─────────────────────────────────────────────────────────────────
+async function sendMsg(){
+  if(loading)return;
+  const inp=$('mi');const text=inp.value.trim();const ims=pendImgs.slice();
+  if(!text&&!ims.length)return;
+  if(!cid)cid='c'+Date.now();
+  inp.value='';inp.style.height='auto';pendImgs=[];rPv();
+  loading=true;$('sndB').disabled=true;
+
+  addUI('u',text||(ims.length?'(image attached)':''),ims.map(i=>i.data));
+
+  // ART MODE
+  if(artMode){
+    showTyp();
+    try{
+      const artModelSel=$('artModel')?.value||'flash';
+      const r=await fetch(API+'/api/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:text||'professional business image',style:artModelSel})});
+      const d=await r.json();
+      rmTyp();
+      if(r.status===503){addUI('a','**VyomArt is warming up** — the model needs ~20 seconds to start. **Please send your prompt again** in 20 seconds and it will work immediately.');}
+      else if(d.image){addImgUI(d.image,false);const sv=getCM(cid);svCM(cid,[...sv,{role:'user',content:text,dt:text,imgs:[]},{role:'image',content:d.image}],sv.length===0?(text||'Image').substring(0,48):undefined);rHist();}
+      else{addUI('a','Image error: '+(d.detail||'Unknown. Please try again.'));}
+    }catch(e){rmTyp();addUI('a','**Connection error:** '+e.message+'\n\nMake sure the VyomAnanta backend is running.');}
+    loading=false;$('sndB').disabled=false;inp.focus();return;
+  }
+
+  // CHAT MODE
+  const sv=getCM(cid);
+  let uc;
+  if(ims.length){uc=[];if(text)uc.push({type:'text',text});ims.forEach(im=>uc.push({type:'image_url',image_url:{url:im.data}}));if(!text)uc.push({type:'text',text:'Analyze this image for business insights.'});}
+  else{uc=text;}
+
+  const ah=sv.filter(m=>m.role==='user'||m.role==='assistant').map(m=>({role:m.role,content:m.content}));
+  ah.push({role:'user',content:uc});
+
+  showTyp();
+  try{
+    const r=await fetch(API+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:mod,messages:ah})});
+    const d=await r.json();
+    rmTyp();
+    if(d.reply){
+      addUI('a',d.reply);spkTx(d.reply.substring(0,400));
+      const nm=[...sv,{role:'user',content:uc,dt:text||(ims.length?'(image)':''),imgs:ims.map(i=>i.data)},{role:'assistant',content:d.reply}];
+      svCM(cid,nm,sv.length===0?(text||'Chat').substring(0,48):undefined);rHist();
+    }else{addUI('a','Error: '+(d.detail||'Unknown error. Please try again.'));}
+  }catch(e){
+    rmTyp();
+    addUI('a','**Connection error:** '+e.message+'\n\n1. Make sure you deployed the Python backend on Render.com\n2. Check internet connection\n3. For help: wa.me/'+WA);
+    console.error(e);
+  }
+  loading=false;$('sndB').disabled=false;inp.focus();
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────
+(function(){
+  const sess=sessionStorage.getItem('va_s');
+  if(sess){try{const d=JSON.parse(sess);curEmail=d.email||'';launchApp(d);return;}catch(e){}}
+  $('aw').style.display='flex';
+  $('ei').addEventListener('keydown',e=>{if(e.key==='Enter')handleEmail();});
+  $('pi').addEventListener('keydown',e=>{if(e.key==='Enter')chkAdmin();});
+})();
+</script>
+</body>
+</html>
